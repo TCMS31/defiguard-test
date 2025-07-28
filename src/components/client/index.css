@@ -1,16 +1,27 @@
-.carousel-indicators li {
-  position: relative;
-  -ms-flex: 0 1 auto;
-  flex: 0 1 auto;
-  /* width: 30px; */
-  /* height: 3px; */
-  margin-right: 3px;
-  margin-left: 3px;
-  text-indent: -999px;
-  /* background-color: rgba(255, 255, 255, .5); */
+/* react-bootstrap renders the indicators as buttons; sit them under the quote
+   instead of overlaying the text, in the site's green. */
+.client_section .carousel-indicators {
+  position: static;
+  margin: 2rem 0 0;
+  gap: 0.6rem;
 }
 
-ol.carousel-indicators {
-  position: relative;
-  top: 500px;
+.client_section .carousel-indicators [data-bs-target] {
+  width: 12px;
+  height: 12px;
+  margin: 0;
+  border: 0;
+  border-radius: 50%;
+  background-color: #1f2a25;
+  opacity: 0.3;
+}
+
+.client_section .carousel-indicators .active {
+  background-color: #02a763;
+  opacity: 1;
+}
+
+.client_section .carousel-indicators [data-bs-target]:focus-visible {
+  outline: 3px solid #f2b705;
+  outline-offset: 3px;
 }

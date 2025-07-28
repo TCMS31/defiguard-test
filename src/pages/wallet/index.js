@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 
+import Footer from '../../components/footer';
+import Header from '../../components/header';
 import { useWallet, WALLET_STATUS } from '../../hooks/useWallet';
 import { formatBalance, shorten } from '../../lib/wallet';
 import { TX_STATUS } from '../../lib/wallet/history';
@@ -118,13 +120,20 @@ function Wallet({ walletOptions }) {
   };
 
   return (
-    <div className="wallet-container">
+    <div className="wallet-page">
+      <div className="header_section">
+        <Header />
+      </div>
+
       <header className="wallet-header">
-        <h1>DeFiGuard Wallet</h1>
-        <p>Send and receive ETH through your browser wallet.</p>
+        <div className="container">
+          <p className="wallet-eyebrow">Self-custody, signed in your wallet</p>
+          <h1>DeFiGuard Wallet</h1>
+          <p>Send and receive ETH through your browser wallet.</p>
+        </div>
       </header>
 
-      <main className="wallet-content">
+      <main className="wallet-content container">
         {wallet.error && (
           <div className="error-message" role="alert" data-testid="wallet-error">
             <span>{wallet.error}</span>
@@ -144,7 +153,7 @@ function Wallet({ walletOptions }) {
         )}
 
         {wallet.status === WALLET_STATUS.DETECTING && (
-          <div className="connect-section" data-testid="detecting">
+          <div className="connect-section" data-testid="detecting" aria-busy="true">
             <h2>Looking for a wallet…</h2>
             <p>Checking your browser for an Ethereum provider.</p>
           </div>
@@ -301,6 +310,8 @@ function Wallet({ walletOptions }) {
           </div>
         )}
       </main>
+
+      <Footer />
     </div>
   );
 }

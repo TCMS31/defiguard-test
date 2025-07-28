@@ -1,6 +1,7 @@
 import React from 'react';
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 
 import Wallet from '..';
 import { WalletClient } from '../../../lib/wallet';
@@ -25,15 +26,23 @@ function renderWallet({ provider = createFakeProvider(), ...overrides } = {}) {
     ...overrides,
   };
 
-  return { provider, storage, ...render(<Wallet walletOptions={walletOptions} />) };
+  return {
+    provider,
+    storage,
+    ...render(
+      <MemoryRouter future={{ v7_relativeSplatPath: true, v7_startTransition: true }}>
+        <Wallet walletOptions={walletOptions} />
+      </MemoryRouter>
+    ),
+  };
 }
 
 describe('Wallet page', () => {
   it('explains itself when no wallet is installed instead of rendering a dead button', async () => {
     renderWallet({ provider: null });
 
-    expect(await screen.findByTestId('unavailable')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /get metamask/i })).toHaveAttribute(
+    const panel = await screen.findByTestId('unavailable');
+    expect(within(panel).getByRole('link', { name: /get metamask/i })).toHaveAttribute(
       'href',
       'https://metamask.io/download/'
     );

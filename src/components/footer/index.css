@@ -21,3 +21,9 @@
   cursor: pointer;
   padding: 0;
 }
+
+.newsletter_note {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  color: #c9d3ce;
+}

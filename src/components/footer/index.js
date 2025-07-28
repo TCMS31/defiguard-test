@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { ArrowRightIcon, EnvelopeIcon, LocationIcon, PhoneIcon } from '../icons';
@@ -6,6 +6,13 @@ import { ArrowRightIcon, EnvelopeIcon, LocationIcon, PhoneIcon } from '../icons'
 import './index.css';
 
 function Footer() {
+  const [subscribed, setSubscribed] = useState(false);
+
+  const handleSubscribe = (event) => {
+    event.preventDefault();
+    setSubscribed(true);
+  };
+
   return (
     <>
       {/* Footer Section */}
@@ -75,22 +82,22 @@ function Footer() {
                     <span className="padding_left_10">
                       <LocationIcon />
                     </span>
-                    105 Todd Weaver Rd, Alto GA, 30510
+                    100 Example Street, Springfield
                   </li>
                   <li>
-                    <a href="tel:+18022021022">
+                    <a href="tel:+15550100100">
                       <span className="padding_left_10">
                         <PhoneIcon />
                       </span>
-                      (802) 202-1022
+                      (555) 010-0100
                     </a>
                   </li>
                   <li>
-                    <a href="mailto:support@defiguard.com">
+                    <a href="mailto:support@example.com">
                       <span className="padding_left_10">
                         <EnvelopeIcon />
                       </span>
-                      support@defiguard.com
+                      support@example.com
                     </a>
                   </li>
                 </ul>
@@ -100,7 +107,7 @@ function Footer() {
             {/* Newsletter Section */}
             <div className="col-lg-3 col-sm-6">
               <h3 className="useful_text">Newsletter</h3>
-              <div className="form-group">
+              <form className="form-group" onSubmit={handleSubscribe}>
                 <label className="visually-hidden" htmlFor="newsletter-email">
                   Email address
                 </label>
@@ -111,13 +118,19 @@ function Footer() {
                   placeholder="Your Email"
                   name="email"
                   autoComplete="email"
+                  required
                 />
                 <div className="subscribe_bt">
-                  <button type="button" aria-label="Subscribe">
+                  <button type="submit" aria-label="Subscribe">
                     <ArrowRightIcon />
                   </button>
                 </div>
-              </div>
+                {subscribed && (
+                  <p className="newsletter_note" role="status">
+                    Thanks. This demo site does not send email, so nothing was stored.
+                  </p>
+                )}
+              </form>
             </div>
           </div>
         </div>
