@@ -1,88 +1,126 @@
 Real API transcript.
 
-Captured on 2026-09-25 by starting the API with:
+Captured on 2026-11-08 against the Docker Compose stack (API image plus
+MongoDB 8.2), started from a fresh copy of the repository with:
 
-    PORT=8651 JWT_SECRET=<local throwaway> node server/index.js
+    JWT_SECRET=$(openssl rand -hex 48) docker compose up --build -d
 
-and driving it with curl. The URLs below are shown on the default port (3003)
-rather than the 8651 the capture actually used; every response body, status code
-and error message is verbatim. The JWT is truncated deliberately -- it was
-signed with a throwaway local secret that is not in this repository.
+and driven with curl on http://localhost:8650. Every status code and body is
+verbatim apart from the JWT, which is cut after six characters. The Socket.IO
+lines at the end are raw Engine.IO polling frames sent to /socket.io/.
 
 --------------------------------------------------------------------------
 
-$ curl -s http://localhost:3003/health | jq
+$ curl -s http://localhost:8650/health
+HTTP 200
 {
-    "status": "ok",
-    "persistence": "in-memory",
-    "authentication": "enabled",
-    "uptimeSeconds": 19
+  "status": "ok",
+  "persistence": "mongodb",
+  "authentication": "enabled",
+  "uptimeSeconds": 6
 }
 
-$ curl -s -X POST http://localhost:3003/api/auth/register \
-    -H "Content-Type: application/json" \
-    -d {"username":"grace","email":"grace@example.com","password":"a long password"} | jq
+$ curl -s -X POST http://localhost:8650/api/auth/register -d '{"username":"grace","email":"grace@example.com","password":"a long password"}'
+HTTP 201
 {
-    "user": {
-        "_id": "mem_2",
-        "username": "grace",
-        "email": "grace@example.com",
-        "avatarImage": "",
-        "isAvatarImageSet": false
-    },
-    "token": "eyJhbGciOiJIUzI1NiIsInR5...<redacted>"
+  "user": {
+    "_id": "6aefdacba5c2e45591bef038",
+    "username": "grace",
+    "email": "grace@example.com",
+    "avatarImage": "",
+    "isAvatarImageSet": false
+  },
+  "token": "eyJhbG...<redacted>"
 }
 
-$ curl -s -X POST http://localhost:3003/api/auth/register -d (same payload again)
+$ curl -s -X POST http://localhost:8650/api/auth/register -d (same grace payload again)
 HTTP 409
 {
-    "error": {
-        "code": "username_taken",
-        "message": "That username is already taken."
-    }
+  "error": {
+    "code": "username_taken",
+    "message": "That username is already taken."
+  }
 }
 
-$ curl -s http://localhost:3003/api/auth/me           # no token
+$ curl -s -X POST http://localhost:8650/api/auth/login -d '{"username":"grace","password":"wrong"}'
 HTTP 401
 {
-    "error": {
-        "code": "unauthorized",
-        "message": "Send a bearer token in the Authorization header."
-    }
+  "error": {
+    "code": "invalid_credentials",
+    "message": "Incorrect username or password."
+  }
 }
 
-$ curl -s http://localhost:3003/api/auth/me -H "Authorization: Bearer $TOKEN"
+$ curl -s http://localhost:8650/api/auth/me    # no token
+HTTP 401
 {
-    "user": {
-        "_id": "mem_2",
-        "username": "grace",
-        "email": "grace@example.com",
-        "avatarImage": "",
-        "isAvatarImageSet": false
-    }
+  "error": {
+    "code": "unauthorized",
+    "message": "Send a bearer token in the Authorization header."
+  }
 }
 
-$ curl -s "http://localhost:3003/api/auth/users?pageSize=10" -H "Authorization: Bearer $TOKEN"
+$ curl -s http://localhost:8650/api/auth/me -H "Authorization: Bearer $TOKEN"
+HTTP 200
 {
-    "users": [
-        {
-            "_id": "mem_1",
-            "username": "ada",
-            "email": "ada@example.com",
-            "avatarImage": "",
-            "isAvatarImageSet": false
-        }
-    ],
-    "page": 1,
-    "pageSize": 10,
-    "total": 1
+  "user": {
+    "_id": "6aefdacba5c2e45591bef038",
+    "username": "grace",
+    "email": "grace@example.com",
+    "avatarImage": "",
+    "isAvatarImageSet": false
+  }
 }
 
-$ curl -s http://localhost:3003/api/nope
+$ curl -s "http://localhost:8650/api/auth/users?pageSize=2" -H "Authorization: Bearer $TOKEN"
+HTTP 200
+{
+  "users": [
+    {
+      "_id": "6aefdacba5c2e45591bef03c",
+      "username": "linus",
+      "email": "linus@example.com",
+      "avatarImage": "",
+      "isAvatarImageSet": false
+    }
+  ],
+  "page": 1,
+  "pageSize": 2,
+  "total": 1
+}
+
+$ curl -s -X POST http://localhost:8650/api/messages -H "Authorization: Bearer $TOKEN" -d '{"to":"<linus id>","message":"hello"}'
+HTTP 201
+{
+  "id": "6aefdacba5c2e45591bef043"
+}
+
+$ curl -s -X POST http://localhost:8650/api/messages/search -H "Authorization: Bearer $TOKEN" -d '{"to":"<linus id>"}'
+HTTP 200
+{
+  "messages": [
+    {
+      "fromSelf": true,
+      "message": "hello",
+      "sentAt": "2026-11-08T02:13:31.736Z"
+    }
+  ],
+  "limit": 50
+}
+
+$ curl -s http://localhost:8650/api/nope
 HTTP 404
 {
-    "error": {
-        "code": "not_found",
-        "message": "No route for GET /api/nope"
-    }
+  "error": {
+    "code": "not_found",
+    "message": "No route for GET /api/nope"
+  }
 }
+
+$ curl -s -o /dev/null -w '%{http_code} %{content_type}' http://localhost:8650/wallet
+200 text/html; charset=UTF-8
+
+$ # Socket.IO namespace connect over polling, without, with a forged, and with a real token
+POST 40                          -> 44{"message":"Authentication required."}
+POST 40{"token":"forged"}        -> 44{"message":"Token is invalid or has expired."}
+POST 40{"token":"<grace token>"} -> 40{"sid":"…"}

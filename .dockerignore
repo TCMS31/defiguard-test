@@ -20,7 +20,6 @@ docs
 **/__tests__
 **/*.test.js
 jest.server.config.js
-.eslintrc.json
 .prettierrc.json
 .prettierignore
 .editorconfig

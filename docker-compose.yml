@@ -25,7 +25,7 @@ services:
     restart: unless-stopped
 
   mongo:
-    image: mongo:7
+    image: mongo:8.2
     # Not published to the host by default; the API reaches it over the compose
     # network. Uncomment to inspect it with a local client.
     # ports:
