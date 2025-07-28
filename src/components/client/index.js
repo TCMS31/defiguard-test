@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Carousel } from 'react-bootstrap';
 
 import './index.css';
@@ -6,29 +6,17 @@ import './index.css';
 import ClientImg from '../../assets/images/client-placeholder.svg';
 
 function ClientSection() {
-  const [index, setIndex] = useState(0);
-
-  const handleSelect = (selectedIndex) => {
-    setIndex(selectedIndex);
-  };
-
   return (
     <div className="client_section layout_padding">
       <div className="container">
-        {/* Indicators (Custom) */}
-        <ol className="carousel-indicators">
-          <li className={index === 0 ? 'active' : ''} onClick={() => setIndex(0)}></li>
-          <li className={index === 1 ? 'active' : ''} onClick={() => setIndex(1)}></li>
-          <li className={index === 2 ? 'active' : ''} onClick={() => setIndex(2)}></li>
-        </ol>
-        <Carousel activeIndex={index} onSelect={handleSelect}>
+        <Carousel controls={false} interval={null}>
           <Carousel.Item>
             <h1 className="client_taital">What Is Says Our Clients One</h1>
             <p className="client_text">
               eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
             </p>
             <div className="client_img">
-              <img src={ClientImg} alt="Client 1" />
+              <img src={ClientImg} alt="" />
             </div>
             <h3 className="magna_text">Magna Aliqua.</h3>
             <p className="consectetur_text">
@@ -43,7 +31,7 @@ function ClientSection() {
               eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
             </p>
             <div className="client_img">
-              <img src={ClientImg} alt="Client 2" />
+              <img src={ClientImg} alt="" />
             </div>
             <h3 className="magna_text">Magna Aliqua.</h3>
             <p className="consectetur_text">
@@ -58,7 +46,7 @@ function ClientSection() {
               eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
             </p>
             <div className="client_img">
-              <img src={ClientImg} alt="Client 3" />
+              <img src={ClientImg} alt="" />
             </div>
             <h3 className="magna_text">Magna Aliqua.</h3>
             <p className="consectetur_text">

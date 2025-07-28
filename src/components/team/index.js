@@ -23,13 +23,6 @@ function TeamSection() {
     },
   ];
 
-  const socialLinks = [
-    { icon: 'fa-facebook', url: '#' },
-    { icon: 'fa-twitter', url: '#' },
-    { icon: 'fa-linkedin', url: '#' },
-    { icon: 'fa-instagram', url: '#' },
-  ];
-
   return (
     <div className="team_section layout_padding">
       <div className="container">
@@ -44,25 +37,14 @@ function TeamSection() {
         </div>
         <div className="team_section_2">
           <div className="row">
-            {teamMembers.map((member, index) => (
-              <div className="col-md-4" key={index}>
+            {teamMembers.map((member) => (
+              <div className="col-md-4" key={member.role}>
                 <div className="client_box">
                   <div className="team_img">
-                    <img src={member.imgSrc} alt={member.name} />
+                    <img src={member.imgSrc} alt="" />
                   </div>
                   <h3 className="client_name">{member.name}</h3>
                   <p className="passages_text">{member.role}</p>
-                </div>
-                <div className="team_social_icon">
-                  <ul>
-                    {socialLinks.map((link, i) => (
-                      <li key={i}>
-                        <a href={link.url}>
-                          <i className={`fa ${link.icon}`} aria-hidden="true"></i>
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
                 </div>
               </div>
             ))}

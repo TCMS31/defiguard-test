@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import AppLogo from '../../assets/images/logo.png';
@@ -22,8 +22,14 @@ const NAV_ITEMS = [
  * Uses router `Link`s rather than plain anchors: the anchors triggered a full
  * document reload on every click, which discarded the React tree and any
  * connected wallet state along with it.
+ *
+ * The collapse is driven by React state because only Bootstrap's CSS is
+ * loaded: the `data-bs-toggle` attributes it used to rely on need Bootstrap's
+ * JavaScript, so below the `lg` breakpoint the menu could never be opened.
  */
 function Header() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
     <div className="container">
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
@@ -34,20 +40,23 @@ function Header() {
         <button
           className="navbar-toggler"
           type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarSupportedContent"
           aria-controls="navbarSupportedContent"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
+          aria-expanded={menuOpen}
+          aria-label={menuOpen ? 'Close navigation' : 'Open navigation'}
+          onClick={() => setMenuOpen((open) => !open)}
         >
           <span className="navbar-toggler-icon" />
         </button>
 
-        <div className="collapse navbar-collapse" id="navbarSupportedContent">
+        <div
+          className={`collapse navbar-collapse${menuOpen ? ' show' : ''}`}
+          id="navbarSupportedContent"
+          data-testid="nav-menu"
+        >
           <ul className="navbar-nav ms-auto">
             {NAV_ITEMS.map((item) => (
               <li className="nav-item" key={item.to}>
-                <Link className="nav-link" to={item.to}>
+                <Link className="nav-link" to={item.to} onClick={() => setMenuOpen(false)}>
                   {item.label}
                 </Link>
               </li>
