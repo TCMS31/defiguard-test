@@ -31,7 +31,7 @@ async function main() {
     cors: { origin: config.corsOrigins, credentials: true },
   });
 
-  registerPresence(io);
+  registerPresence(io, { verifyToken: app.locals.services.userService.verifyToken });
 
   server.listen(config.port, () => {
     console.info(
