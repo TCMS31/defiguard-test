@@ -3,7 +3,7 @@
 # ---------------------------------------------------------------------------
 # Stage 1: install every dependency once, cached on the lockfile alone.
 # ---------------------------------------------------------------------------
-FROM node:20-alpine AS deps
+FROM node:22-alpine AS deps
 
 WORKDIR /app
 COPY package.json package-lock.json ./
@@ -13,7 +13,7 @@ RUN npm ci
 # ---------------------------------------------------------------------------
 # Stage 2: build the React app. Nothing from this stage but build/ survives.
 # ---------------------------------------------------------------------------
-FROM node:20-alpine AS web
+FROM node:22-alpine AS web
 
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
@@ -30,7 +30,7 @@ RUN npm run build
 # Stage 3: production dependencies only -- no react-scripts, no webpack, no
 # test tooling in the shipped image.
 # ---------------------------------------------------------------------------
-FROM node:20-alpine AS prod-deps
+FROM node:22-alpine AS prod-deps
 
 WORKDIR /app
 COPY package.json package-lock.json ./
@@ -40,7 +40,7 @@ RUN npm ci --omit=dev && npm cache clean --force
 # ---------------------------------------------------------------------------
 # Stage 4: runtime. One process serves the API and the built SPA.
 # ---------------------------------------------------------------------------
-FROM node:20-alpine AS runtime
+FROM node:22-alpine AS runtime
 
 ENV NODE_ENV=production \
     PORT=3003 \
