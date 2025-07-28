@@ -1,9 +1,10 @@
 /**
  * Capture the README screenshots.
  *
- * Usage:
- *   npm run start-front                       # in one terminal (PORT=8650)
- *   node scripts/capture-screenshots.mjs      # in another
+ * Usage (see the README for the full sequence):
+ *   npm run build
+ *   STATIC_DIR=build API_PORT=8650 npm run start-server   # in one terminal
+ *   node scripts/capture-screenshots.mjs                   # in another
  *
  * A browser wallet cannot be installed in a headless browser, so the page is
  * given a fake EIP-1193 provider on `window.ethereum` before any application
@@ -21,6 +22,7 @@ import { chromium } from 'playwright';
 const BASE_URL = process.env.SCREENSHOT_BASE_URL ?? 'http://localhost:8650';
 const OUT_DIR = path.resolve('docs/screenshots');
 const VIEWPORT = { width: 1440, height: 900 };
+const MOBILE_VIEWPORT = { width: 390, height: 844 };
 
 const ACCOUNT = '0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed';
 const RECIPIENT = '0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359';
@@ -91,18 +93,43 @@ async function capture(page, name) {
   console.info('wrote %s', path.relative(process.cwd(), file));
 }
 
+const WALLET_FIXTURE = {
+  account: ACCOUNT,
+  chainId: 11155111, // Sepolia
+  balanceWei: '4218500000000000000', // 4.2185 ETH
+  gasPrice: '24000000000', // 24 gwei
+};
+
+/** @param {import('playwright').Browser} browser */
+async function captureMobile(browser) {
+  const context = await browser.newContext({ viewport: MOBILE_VIEWPORT, deviceScaleFactor: 1 });
+  await context.addInitScript(installFakeWallet, WALLET_FIXTURE);
+  const page = await context.newPage();
+
+  await page.goto(`${BASE_URL}/`, { waitUntil: 'networkidle' });
+  await page.click('.navbar-toggler');
+  await page.waitForSelector('#navbarSupportedContent.show');
+  await capture(page, 'home-mobile');
+
+  await page.goto(`${BASE_URL}/wallet`, { waitUntil: 'networkidle' });
+  await page.waitForSelector('[data-testid="account-address"]');
+  await send(page, RECIPIENT, '0.35');
+  await page.waitForSelector('.status-pill--confirmed', { timeout: 15000 });
+  await page.click('[data-testid="wallet-notice"] .dismiss-btn');
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(400);
+  await capture(page, 'wallet-mobile');
+
+  await context.close();
+}
+
 async function main() {
   await mkdir(OUT_DIR, { recursive: true });
 
   const browser = await chromium.launch();
   const context = await browser.newContext({ viewport: VIEWPORT, deviceScaleFactor: 1 });
 
-  await context.addInitScript(installFakeWallet, {
-    account: ACCOUNT,
-    chainId: 11155111, // Sepolia
-    balanceWei: '4218500000000000000', // 4.2185 ETH
-    gasPrice: '24000000000', // 24 gwei
-  });
+  await context.addInitScript(installFakeWallet, WALLET_FIXTURE);
 
   const page = await context.newPage();
 
@@ -143,6 +170,8 @@ async function main() {
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.waitForTimeout(400);
   await capture(page, 'wallet-gas-check');
+
+  await captureMobile(browser);
 
   await browser.close();
 }

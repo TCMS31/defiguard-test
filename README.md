@@ -11,6 +11,11 @@ extension; the signing happens in the wallet, after the user approves it.
 
 ![The wallet with a connected Sepolia account, its balance, and the send and receive cards](docs/screenshots/wallet-connected.png)
 
+<p>
+  <img src="docs/screenshots/wallet-mobile.png" width="280" alt="The wallet at phone width: account card with network badge, address, balance and full-width buttons">
+  <img src="docs/screenshots/home-mobile.png" width="280" alt="The landing page at phone width with the navigation menu open">
+</p>
+
 ## Pricing the transfer before validating it
 
 `amount <= balance` is the wrong question. A user who types their whole balance passes
@@ -111,8 +116,8 @@ application mocked.
 
 It is also how the screenshots above exist. `scripts/capture-screenshots.mjs` injects a
 fake provider with Playwright's `addInitScript` before any application code runs, then
-drives the real UI at 1440x900. The two rows in the history table were produced by filling
-in and submitting the form; they were not seeded.
+drives the real UI at 1440x900 and 390x844. The rows in the history table were produced
+by filling in and submitting the form; they were not seeded.
 
 web3.js is kept for exactly one job — `Web3.utils.isAddress`, because checksum validation
 needs keccak. Balances and amounts never go near it.
@@ -124,15 +129,17 @@ lands in its own chunk. Measured with `npm run build`, gzip figures as CRA repor
 
 | Chunk | gzip |
 | --- | --- |
-| `main` — every visitor | 133.5 kB |
-| web3.js chunk — only on `/wallet` | 137.12 kB |
-| `main` CSS | 35.69 kB |
-| `build/static/media` (all emitted assets) | 488 kB |
+| `main` — every visitor | 137.99 kB |
+| web3.js chunk — only on `/wallet` | 135.53 kB |
+| `main` CSS | 35.8 kB |
 
-The four icons on the site are inline SVG rather than an icon font, which is the other
-reason there is no webfont payload.
+The four icons on the site are inline SVG rather than an icon font. Type is Raleway for
+headings with IBM Plex Sans and Plex Mono (addresses, amounts, the network badge), loaded
+from Google Fonts in `public/index.html`.
 
 ## Running it
+
+Node 22 (`.nvmrc`; `engines` says `^22`).
 
 ```bash
 npm install
@@ -159,23 +166,25 @@ npm run build        # production bundle
 `src/` and the API has its own Jest config:
 
 ```
-Test Suites: 7 passed, 7 total
-Tests:       105 passed, 105 total
+Test Suites: 9 passed, 9 total
+Tests:       108 passed, 108 total
 
 Test Suites: 4 passed, 4 total
-Tests:       67 passed, 67 total
+Tests:       69 passed, 69 total
 ```
 
 No test in either suite makes a network request, opens a database, or is capable of
 signing or broadcasting a transaction. The fake provider in `src/lib/wallet/testing/` has
 no key material and no transport.
 
-Re-capturing the screenshots needs a Chromium build for Playwright:
+Re-capturing the screenshots needs a Chromium build for Playwright, and the built app
+served on port 8650 by the API:
 
 ```bash
 npx playwright install chromium
-npm run start-front                    # leave running
-PORT=8650 node scripts/capture-screenshots.mjs
+npm run build
+STATIC_DIR=build API_PORT=8650 npm run start-server   # leave running
+node scripts/capture-screenshots.mjs
 ```
 
 ## Environment variables
@@ -199,25 +208,56 @@ wallet is connected to, so there is no RPC URL to set and no key to supply.
 ## The Express API, and what it is not
 
 `server/` is an account and messaging API — register, log in, list users, set an avatar,
-exchange messages over Socket.IO. **The wallet page never calls it.** It is not part of
+store direct messages, and relay them live over Socket.IO. **The wallet page never calls
+it.** It is not part of
 any flow on this site, and the marketing pages are static.
 
 What it is, taken on its own terms: `server/app.js` builds the Express app with no
 `listen()` and every collaborator injectable, `server/index.js` is process wiring only.
 Controllers are thin HTTP adapters, services hold the rules, and repositories have a
 Mongoose implementation and an in-memory one behind a single interface — which is what
-makes `MONGO_URL` optional rather than fatal, and what lets all 67 API tests run over
+makes `MONGO_URL` optional rather than fatal, and what lets all 69 API tests run over
 supertest with no database. Identity on authenticated routes comes from a verified bearer
 token, not from a URL parameter, and responses are built from an explicit public
 projection so a password hash cannot ride along in one. Reads are paged with the page size
 clamped server-side rather than trusted from the request.
 
-A real captured session — `/health`, register, duplicate register, `/me` with and without
-a token, paginated users, an unknown route — is in
-[`docs/api-session.txt`](docs/api-session.txt), verbatim.
+The socket follows the same rule. A client connects with the token it got from login,
+`io(url, { auth: { token } })`; the handshake is refused without a valid one, the socket's
+user is whoever the token says, and every relayed `msg-receive` carries that verified
+`from`. An earlier version took the user id from the `add-user` payload, so any client
+could register as someone else and receive their messages.
+
+| Route | Auth | Purpose |
+| --- | --- | --- |
+| `GET /health` | no | Liveness, persistence mode, whether auth is enabled |
+| `POST /api/auth/register` | no | Create an account, returns the user and a JWT |
+| `POST /api/auth/login` | no | Exchange username and password for a JWT |
+| `GET /api/auth/me` | yes | The caller's own profile |
+| `GET /api/auth/users?page=&pageSize=` | yes | Everyone except the caller, paged |
+| `POST /api/auth/avatar` | yes | Set the caller's avatar image |
+| `POST /api/messages` | yes | Store a message `{ to, message }` from the caller |
+| `POST /api/messages/search` | yes | The conversation between the caller and `to` |
+
+A real session against the Compose stack — `/health`, register, duplicate register, a bad
+login, `/me` with and without a token, paginated users, sending and reading a message, an
+unknown route, and the socket handshake with and without a token — is in
+[`docs/api-session.txt`](docs/api-session.txt). An excerpt:
+
+```
+$ curl -s -X POST http://localhost:8650/api/auth/login -d '{"username":"grace","password":"wrong"}'
+HTTP 401
+{
+  "error": {
+    "code": "invalid_credentials",
+    "message": "Incorrect username or password."
+  }
+}
+```
 
 The site the wallet lives in is a purchased blockchain-agency template; its copy, team and
-blog entries are the template's placeholder content.
+blog entries are the template's placeholder content, and the team and testimonial photos
+are neutral placeholder silhouettes.
 
 ![The DeFiGuard landing page, a dark blockchain-agency template with the wallet in the nav](docs/screenshots/home.png)
 
@@ -267,12 +307,15 @@ what is implemented now.
 - **Legacy gas only.** Transfers carry `eth_gasPrice` and a gas limit, not an EIP-1559
   `maxFeePerGas`/`maxPriorityFeePerGas` pair. Wallets fill those in, so transfers succeed,
   but the figure in the shortfall message is a legacy-style estimate.
-- **The Mongoose repositories are not integration-tested.** The interface is exercised
-  through the in-memory implementation; the Mongoose side is structurally simple but has
-  not been run against a real MongoDB here.
-- **The contact form does not send mail.** It acknowledges the submission in place and
-  says so.
+- **The Mongoose repositories have no automated tests.** The suites exercise the
+  interface through the in-memory implementation. The Mongoose side has been run by hand
+  against MongoDB 8.2 in the Compose stack (the session in `docs/api-session.txt`), but
+  nothing re-checks it on each change.
+- **Neither the contact form nor the newsletter box sends mail.** Each acknowledges the
+  submission in place and says so. The contact details in the footer are placeholders.
 - **CRA 5 is end-of-life.** Migrating to Vite would touch every file and was not attempted.
+  It also holds Jest at 27 and ESLint at 8, and React Router stays on 6 (the v7 future
+  flags are already on) because CRA's Jest cannot load v7.
 
 ## In a container
 
@@ -281,15 +324,14 @@ JWT_SECRET=$(node -e "console.log(require('crypto').randomBytes(48).toString('he
   docker compose up --build
 ```
 
-Four stages — dependencies, React build, production dependencies, runtime — so the
-shipped image carries no `react-scripts`, no webpack and no test tooling. It runs as the
-unprivileged `node` user under `tini`, so `SIGTERM` reaches the graceful shutdown in
-`server/index.js`, and carries a `HEALTHCHECK` against `/health`. Compose publishes the
-app on <http://localhost:8650> and keeps MongoDB off the host entirely; `JWT_SECRET` is
-required with no default.
+Four stages on `node:22-alpine` — dependencies, React build, production dependencies,
+runtime — so the shipped image carries no `react-scripts`, no webpack and no test
+tooling. It runs as the unprivileged `node` user under `tini`, so `SIGTERM` reaches the
+graceful shutdown in `server/index.js`, and carries a `HEALTHCHECK` against `/health`.
+Compose publishes the app and API together on <http://localhost:8650>, runs MongoDB 8.2
+without publishing it to the host, and refuses to start without `JWT_SECRET`.
 
-**These images have not been built or booted in this environment.** `docker compose
-config -q` parses cleanly; that is the extent of what has been verified.
+`docker compose down -v` stops it and drops the database volume.
 
 ## Licence
 
