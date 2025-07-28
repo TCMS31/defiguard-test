@@ -1,0 +1,68 @@
+{
+  "name": "defiguard",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@metamask/detect-provider": "^2.0.0",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "@testing-library/user-event": "^13.5.0",
+    "bcryptjs": "^2.4.3",
+    "bootstrap": "^5.3.3",
+    "concurrently": "^9.1.2",
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.3",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.10.1",
+    "react": "^19.0.0",
+    "react-bootstrap": "^2.10.9",
+    "react-dom": "^19.0.0",
+    "react-router": "^6.29.0",
+    "react-router-dom": "^6.29.0",
+    "react-scripts": "5.0.1",
+    "socket.io": "^4.8.1",
+    "web-vitals": "^2.1.4",
+    "web3": "^4.16.0"
+  },
+  "scripts": {
+    "start": "concurrently -n api,web -c blue,green \"npm:start-server\" \"npm:start-front\"",
+    "start-front": "react-scripts start",
+    "start-server": "node server/index.js",
+    "build": "react-scripts build",
+    "test": "npm run test:web && npm run test:server",
+    "test:web": "cross-env CI=true react-scripts test --watchAll=false",
+    "test:server": "jest --config jest.server.config.js",
+    "test:watch": "react-scripts test",
+    "lint": "eslint src server --ext .js --max-warnings 0",
+    "lint:fix": "eslint src server --ext .js --fix",
+    "format": "prettier --check \"src/**/*.{js,css}\" \"server/**/*.js\"",
+    "format:fix": "prettier --write \"src/**/*.{js,css}\" \"server/**/*.js\""
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "eslint": "^8.57.1",
+    "jest": "^27.5.1",
+    "playwright": "^1.63.0",
+    "prettier": "^3.9.9",
+    "supertest": "^6.3.4"
+  },
+  "description": "Ethereum wallet interface (send/receive ETH via an injected EIP-1193 wallet) plus the DeFiGuard marketing site and a small Express API.",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=18"
+  }
+}
