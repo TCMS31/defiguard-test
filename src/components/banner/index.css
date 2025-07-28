@@ -139,3 +139,14 @@
     font-size: 40px;
   }
 }
+
+/* Bootstrap's arrow icons are white; the "next" control sits on a white disc
+   until hovered, so its arrow was invisible. */
+#banner_slider .carousel-control-next .carousel-control-next-icon {
+  filter: invert(1);
+}
+
+#banner_slider .carousel-control-next:hover .carousel-control-next-icon,
+#banner_slider .carousel-control-next:focus .carousel-control-next-icon {
+  filter: none;
+}
