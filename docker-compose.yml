@@ -1,0 +1,44 @@
+name: defiguard
+
+services:
+  api:
+    build:
+      context: .
+      target: runtime
+    # Host ports are deliberately non-default so this stack does not collide
+    # with anything already running on 3000/3003/27017.
+    ports:
+      - "8650:3003"
+    environment:
+      NODE_ENV: production
+      PORT: "3003"
+      STATIC_DIR: /app/build
+      MONGO_URL: mongodb://mongo:27017/defiguard
+      CORS_ORIGIN: http://localhost:8650
+      # Supply this from the shell or an .env file. There is no default: the
+      # API answers 503 on authenticated routes rather than signing tokens with
+      # a guessable key.
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET before starting the stack}
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:7
+    # Not published to the host by default; the API reaches it over the compose
+    # network. Uncomment to inspect it with a local client.
+    # ports:
+    #   - "8651:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+volumes:
+  mongo-data:

@@ -1,0 +1,29 @@
+# Never ship, and never invalidate the build cache on:
+node_modules
+build
+coverage
+project_venv
+.git
+.gitignore
+.github
+
+# Local environment and editor state
+.env
+.env.*
+!.env.example
+.DS_Store
+.vscode
+.idea
+
+# Docs, tests and tooling that the runtime image does not need
+docs
+**/__tests__
+**/*.test.js
+jest.server.config.js
+.eslintrc.json
+.prettierrc.json
+.prettierignore
+.editorconfig
+README.md
+WALLET_README.md
+LICENSE

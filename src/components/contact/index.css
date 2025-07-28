@@ -1,0 +1,29 @@
+.send_bt a {
+  width: 100%;
+  text-align: center;
+  font-size: 18px;
+  color: #fefefd !important;
+  background-color: #252525;
+  padding: 10px;
+  text-transform: uppercase;
+  display: block;
+  font-weight: bold;
+  border-radius: 5px;
+}
+.contact_ack {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: rgba(2, 167, 99, 0.12);
+  color: #02a763;
+  font-weight: 600;
+}
+
+.send_bt button {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+}

@@ -1,0 +1,524 @@
+.wallet-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.wallet-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  color: white;
+}
+
+.wallet-header h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.wallet-header p {
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+.wallet-content {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.connect-section {
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+.connect-section h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.connect-section p {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.connect-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.connect-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+}
+
+.connect-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.wallet-interface {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.account-info,
+.transaction-section,
+.receive-section {
+  background: #f8f9fa;
+  border-radius: 15px;
+  padding: 1.5rem;
+  border: 1px solid #e9ecef;
+}
+
+.account-info {
+  grid-column: 1 / -1;
+}
+
+.info-card {
+  background: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.info-item {
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.info-label {
+  font-weight: 600;
+  color: #333;
+}
+
+.address-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.address {
+  font-family: 'Courier New', monospace;
+  background: #f1f3f4;
+  padding: 0.5rem;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  word-break: break-all;
+}
+
+.balance {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #28a745;
+}
+
+.copy-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.3s ease;
+}
+
+.copy-btn:hover {
+  background: #0056b3;
+}
+
+.disconnect-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s ease;
+  flex: 1;
+}
+
+.disconnect-btn:hover {
+  background: #c82333;
+}
+
+.transaction-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #333;
+}
+
+.form-input {
+  padding: 0.75rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.send-btn {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border: none;
+  padding: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+}
+
+.send-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(40, 167, 69, 0.4);
+}
+
+.send-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Without this the receive card stretches to match the taller send form and
+   ends in a large empty panel. */
+.receive-section {
+  align-self: start;
+}
+
+.receive-card {
+  text-align: center;
+}
+
+.address-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.receive-address {
+  font-family: 'Courier New', monospace;
+  background: #f1f3f4;
+  padding: 0.75rem;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  word-break: break-all;
+  flex: 1;
+}
+
+.error-message,
+.success-message {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.success-message {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.dismiss-btn {
+  background: transparent;
+  border: 1px solid currentColor;
+  color: inherit;
+  border-radius: 999px;
+  padding: 0.25rem 0.85rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ---------- Section headings, network badge and actions ---------- */
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.section-head h2 {
+  margin: 0;
+}
+
+.section-note {
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin: -0.25rem 0 1rem;
+}
+
+.field-hint {
+  color: #6c757d;
+  font-size: 0.82rem;
+  margin: 0;
+}
+
+.network-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.network-badge__dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.network-badge--mainnet {
+  background: #fff4e5;
+  border-color: #ffd8a8;
+  color: #b25000;
+}
+
+.network-badge--testnet {
+  background: #e7f5ff;
+  border-color: #a5d8ff;
+  color: #1864ab;
+}
+
+.network-badge--unknown {
+  background: #f1f3f5;
+  border-color: #dee2e6;
+  color: #495057;
+}
+
+.info-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.ghost-btn {
+  background: white;
+  color: #495057;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  flex: 1;
+}
+
+.ghost-btn:hover {
+  background: #f1f3f5;
+}
+
+.copy-feedback {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  color: #2b8a3e;
+}
+
+/* ---------- Transaction history ---------- */
+
+.history-section {
+  grid-column: 1 / -1;
+  background: #f8f9fa;
+  border-radius: 15px;
+  padding: 1.5rem;
+  border: 1px solid #e9ecef;
+}
+
+.history-empty {
+  color: #6c757d;
+  background: white;
+  border: 1px dashed #dee2e6;
+  border-radius: 10px;
+  padding: 1.5rem;
+  text-align: center;
+  margin: 0;
+}
+
+.history-table-wrap {
+  overflow-x: auto;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.history-table th,
+.history-table td {
+  text-align: left;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #f1f3f5;
+  white-space: nowrap;
+}
+
+.history-table th {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #868e96;
+  background: #fbfbfc;
+}
+
+.history-table tr:last-child td {
+  border-bottom: none;
+}
+
+.history-table code {
+  font-family: 'Courier New', monospace;
+  color: #343a40;
+}
+
+.history-amount {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.status-pill--pending {
+  background: #fff9db;
+  color: #8a6d0b;
+}
+
+.status-pill--confirmed {
+  background: #ebfbee;
+  color: #2b8a3e;
+}
+
+.status-pill--failed {
+  background: #fff5f5;
+  color: #c92a2a;
+}
+
+/* ---------- Focus visibility ---------- */
+
+.wallet-container a:focus-visible,
+.wallet-container button:focus-visible,
+.wallet-container input:focus-visible {
+  outline: 3px solid #4c6ef5;
+  outline-offset: 2px;
+}
+
+/* `connect-btn` is rendered as a link on the "no wallet" screen. */
+a.connect-btn {
+  display: inline-block;
+  text-decoration: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .wallet-container {
+    padding: 1rem;
+  }
+
+  .wallet-header h1 {
+    font-size: 2rem;
+  }
+
+  .wallet-interface {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .address-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .address-display {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .info-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .info-actions {
+    flex-direction: column;
+  }
+}
+
+/* Loading Animation */
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.connect-btn:disabled,
+.send-btn:disabled {
+  animation: pulse 1.5s infinite;
+}
