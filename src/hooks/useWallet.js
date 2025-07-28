@@ -9,6 +9,7 @@ import {
   weiToEtherString,
 } from '../lib/wallet';
 import {
+  historyKey,
   loadHistory,
   recordTransaction,
   updateTransactionStatus,
@@ -60,6 +61,14 @@ export function useWallet({
   const [sending, setSending] = useState(false);
 
   const scope = useMemo(() => ({ storage, account, chainId }), [storage, account, chainId]);
+
+  // What the page is showing right now. Receipt polls and provider events run
+  // after the render that started them, so they compare against these instead
+  // of the values captured in their closures.
+  const accountRef = useRef('');
+  const scopeKeyRef = useRef(historyKey('', null));
+  accountRef.current = account;
+  scopeKeyRef.current = historyKey(account, chainId);
 
   const safeSet = useCallback((setter, value) => {
     if (mountedRef.current) setter(value);
@@ -153,10 +162,7 @@ export function useWallet({
     const offChain = client.on('chainChanged', (nextChainId) => {
       safeSet(setChainId, normaliseChainId(nextChainId));
       safeSet(setNotice, 'Network changed.');
-      setAccount((current) => {
-        if (current) refresh(current);
-        return current;
-      });
+      if (accountRef.current) refresh(accountRef.current);
     });
 
     return () => {
@@ -223,7 +229,14 @@ export function useWallet({
     setNotice('Cleared locally. Revoke site access from MetaMask to fully disconnect.');
   }, []);
 
-  /** Poll for a receipt so a sent transaction does not sit on "pending" forever. */
+  /**
+   * Poll for a receipt so a sent transaction does not sit on "pending" forever.
+   *
+   * The status is always written to the history of the account and chain the
+   * transfer was sent from, but it only replaces the list on screen if the user
+   * is still looking at that account and chain. Otherwise switching account
+   * while a send was pending put the old account's history under the new one.
+   */
   const watchReceipt = useCallback(
     (hash, attempt = 0) => {
       const client = clientRef.current;
@@ -242,12 +255,17 @@ export function useWallet({
 
           const confirmed = receipt.status === '0x1' || receipt.status === true;
 
-          safeSet(
-            setHistory,
-            updateTransactionStatus(scope, hash, confirmed ? TX_STATUS.CONFIRMED : TX_STATUS.FAILED)
+          const updated = updateTransactionStatus(
+            scope,
+            hash,
+            confirmed ? TX_STATUS.CONFIRMED : TX_STATUS.FAILED
           );
 
-          if (account) refresh(account);
+          if (scopeKeyRef.current === historyKey(scope.account, scope.chainId)) {
+            safeSet(setHistory, updated);
+          }
+
+          if (accountRef.current === account) refresh(account);
         } catch {
           watchReceipt(hash, attempt + 1);
         }

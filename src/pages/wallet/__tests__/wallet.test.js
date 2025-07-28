@@ -152,6 +152,28 @@ describe('Wallet page', () => {
     await waitFor(() => expect(screen.getByTestId('balance')).toHaveTextContent('5.000000 ETH'));
   });
 
+  it('keeps a pending send in its own history when the account switches before the receipt', async () => {
+    const { provider } = renderWallet({ pollIntervalMs: 40 });
+
+    await screen.findByTestId('account-address');
+    await userEvent.type(screen.getByLabelText(/recipient address/i), RECIPIENT);
+    await userEvent.type(screen.getByLabelText(/amount/i), '0.25');
+    await userEvent.click(screen.getByRole('button', { name: /send eth/i }));
+    await screen.findByRole('row', { name: /0\.25 ETH/ });
+
+    act(() => provider.emitAccountsChanged([RECIPIENT]));
+    await waitFor(() => expect(screen.getByTestId('account-address')).toHaveTextContent(RECIPIENT));
+
+    // Let the receipt poll fire while the other account is on screen.
+    await act(() => new Promise((resolve) => setTimeout(resolve, 150)));
+    expect(screen.getByText(/No transactions sent from this account/i)).toBeInTheDocument();
+    expect(screen.queryByRole('row', { name: /0\.25 ETH/ })).not.toBeInTheDocument();
+
+    act(() => provider.emitAccountsChanged([DEFAULT_ACCOUNT]));
+    const row = await screen.findByRole('row', { name: /0\.25 ETH/ });
+    expect(within(row).getByText('Confirmed')).toBeInTheDocument();
+  });
+
   it('follows the wallet when the user switches network', async () => {
     const { provider } = renderWallet();
 
