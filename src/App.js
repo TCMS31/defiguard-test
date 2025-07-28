@@ -2,8 +2,9 @@ import React, { lazy, Suspense } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 import './App.css';
-import './assets/css/responsive.css';
 import './assets/css/style.css';
+// After style.css: the breakpoint overrides only win if they come later.
+import './assets/css/responsive.css';
 
 import About from './pages/about';
 import Blog from './pages/blog';

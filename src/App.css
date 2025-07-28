@@ -4,7 +4,9 @@
   float: left;
   background-image: url(./assets/images/banner-bg.jpg);
   height: auto;
-  background-size: 100%;
+  background-color: #050806;
+  background-size: cover;
+  background-position: center top;
   background-repeat: no-repeat;
 }
 

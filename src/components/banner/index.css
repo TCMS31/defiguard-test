@@ -123,3 +123,19 @@
 /* .carousel-indicators {
     top: 350px;
 } */
+
+/* The hero copy is white on the photo; below this width the 60px heading
+   overflowed the screen and ran past the end of the image. */
+@media (max-width: 767px) {
+  .banner_section {
+    padding: 48px 0 96px;
+  }
+
+  .banner_taital_main {
+    width: 100%;
+  }
+
+  .banner_taital {
+    font-size: 40px;
+  }
+}

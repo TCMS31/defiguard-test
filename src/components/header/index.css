@@ -1,0 +1,8 @@
+/* Below lg the brand link is width: auto, which let the logo render at its
+   full intrinsic size and push the menu toggle onto its own line. */
+@media (max-width: 991px) {
+  .navbar-brand img {
+    width: 150px;
+    height: auto;
+  }
+}
