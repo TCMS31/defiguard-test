@@ -1,0 +1,88 @@
+Real API transcript.
+
+Captured on 2026-09-25 by starting the API with:
+
+    PORT=8651 JWT_SECRET=<local throwaway> node server/index.js
+
+and driving it with curl. The URLs below are shown on the default port (3003)
+rather than the 8651 the capture actually used; every response body, status code
+and error message is verbatim. The JWT is truncated deliberately -- it was
+signed with a throwaway local secret that is not in this repository.
+
+--------------------------------------------------------------------------
+
+$ curl -s http://localhost:3003/health | jq
+{
+    "status": "ok",
+    "persistence": "in-memory",
+    "authentication": "enabled",
+    "uptimeSeconds": 19
+}
+
+$ curl -s -X POST http://localhost:3003/api/auth/register \
+    -H "Content-Type: application/json" \
+    -d {"username":"grace","email":"grace@example.com","password":"a long password"} | jq
+{
+    "user": {
+        "_id": "mem_2",
+        "username": "grace",
+        "email": "grace@example.com",
+        "avatarImage": "",
+        "isAvatarImageSet": false
+    },
+    "token": "eyJhbGciOiJIUzI1NiIsInR5...<redacted>"
+}
+
+$ curl -s -X POST http://localhost:3003/api/auth/register -d (same payload again)
+HTTP 409
+{
+    "error": {
+        "code": "username_taken",
+        "message": "That username is already taken."
+    }
+}
+
+$ curl -s http://localhost:3003/api/auth/me           # no token
+HTTP 401
+{
+    "error": {
+        "code": "unauthorized",
+        "message": "Send a bearer token in the Authorization header."
+    }
+}
+
+$ curl -s http://localhost:3003/api/auth/me -H "Authorization: Bearer $TOKEN"
+{
+    "user": {
+        "_id": "mem_2",
+        "username": "grace",
+        "email": "grace@example.com",
+        "avatarImage": "",
+        "isAvatarImageSet": false
+    }
+}
+
+$ curl -s "http://localhost:3003/api/auth/users?pageSize=10" -H "Authorization: Bearer $TOKEN"
+{
+    "users": [
+        {
+            "_id": "mem_1",
+            "username": "ada",
+            "email": "ada@example.com",
+            "avatarImage": "",
+            "isAvatarImageSet": false
+        }
+    ],
+    "page": 1,
+    "pageSize": 10,
+    "total": 1
+}
+
+$ curl -s http://localhost:3003/api/nope
+HTTP 404
+{
+    "error": {
+        "code": "not_found",
+        "message": "No route for GET /api/nope"
+    }
+}
